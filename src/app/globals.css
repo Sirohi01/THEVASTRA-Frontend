@@ -1,26 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FFF8F0;
+  --foreground: #2A0506;
+  --primary: #540B0E;
+  --secondary: #9B7E3E;
+  --accent: #E2D1C3;
+  --cream: #FFF8F0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: #FFF8F0;
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: #FFF8F0;
+  --color-accent: var(--accent);
+  --color-accent-foreground: #540B0E;
+  --color-cream: var(--cream);
+  
   --font-sans: var(--font-geist-sans);
+  --font-serif: "Playfair Display", serif;
   --font-mono: var(--font-geist-mono);
+
+  --radius-lg: 0.5rem;
+  --radius-md: calc(0.5rem - 2px);
+  --radius-sm: calc(0.5rem - 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-accent;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(226, 209, 195, 0) 0%,
+    rgba(226, 209, 195, 0.2) 50%,
+    rgba(226, 209, 195, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
