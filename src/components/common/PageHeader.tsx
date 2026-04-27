@@ -10,7 +10,7 @@ interface PageHeaderProps {
 
 export const PageHeader = ({ title, subtitle, image }: PageHeaderProps) => {
   return (
-    <section className="relative h-[40vh] min-h-[300px] flex items-center justify-center overflow-hidden">
+    <section className="relative w-full aspect-[2/1] md:aspect-[3/1] min-h-[300px] flex items-center justify-center overflow-hidden">
       {/* Background Image with Parallax effect */}
       <div className="absolute inset-0 z-0">
         <img 

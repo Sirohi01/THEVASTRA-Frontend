@@ -35,14 +35,22 @@ import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { logout, isAuthenticated, user } = useAuthStore();
+  const { logout, isAuthenticated, user, _hasHydrated } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated || user?.role !== 'admin') {
-      router.replace('/login');
+    if (_hasHydrated) {
+      if (!isAuthenticated || user?.role !== 'admin') {
+        router.replace('/login');
+      }
     }
-  }, [isAuthenticated, user, router]);
+  }, [_hasHydrated, isAuthenticated, user, router]);
+
+  if (!_hasHydrated) {
+    return <div className="h-screen w-full flex items-center justify-center bg-gray-50">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    </div>;
+  }
 
   const handleLogout = async () => {
     await logout();

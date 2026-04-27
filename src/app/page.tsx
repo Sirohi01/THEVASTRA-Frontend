@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import API from "@/services/api";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/Button";
 
 export default function Home() {
   const { data: categories, isLoading } = useQuery({
@@ -40,7 +41,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   key={category._id} 
-                  className="group relative overflow-hidden h-[500px] md:h-[600px] cursor-pointer"
+                  className="group relative overflow-hidden aspect-square cursor-pointer"
                 >
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-700 z-10" />
                   <img 
@@ -117,6 +118,40 @@ export default function Home() {
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="aspect-[3/4] bg-white animate-pulse" />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Brand Story / Blog Section (3:2 Aspect Ratio) */}
+      <section className="py-24 bg-white overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative aspect-[3/2] overflow-hidden"
+            >
+              <img 
+                src="https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop" 
+                alt="Our Heritage"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 border-[15px] border-white/20 m-4" />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="space-y-8"
+            >
+              <p className="text-secondary tracking-[0.5em] uppercase text-[10px] font-bold">The Vastra Story</p>
+              <h2 className="text-4xl md:text-5xl font-serif text-primary uppercase leading-tight">Crafting Legacies Since 1985</h2>
+              <p className="text-secondary leading-relaxed font-light">
+                Every thread tells a story of heritage, every pattern a whisper of ancient craft. At TheVastraHouse, we don't just create garments; we weave the very fabric of royalty for the modern connoisseur.
+              </p>
+              <Button variant="outline" className="tracking-[0.3em] uppercase text-[10px]">Read Our Story</Button>
+            </motion.div>
           </div>
         </div>
       </section>

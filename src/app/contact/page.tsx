@@ -61,6 +61,17 @@ export default function ContactPage() {
         subtitle={cms?.subtitle || "We are at your service for bespoke inquiries and personal styling."}
         image={cms?.headerImage || "https://images.unsplash.com/photo-1594187043532-97417b0ef535"}
       />
+      {/* Main Content Section from CMS */}
+      {cms?.content && (
+        <div className="py-16 bg-white">
+          <div className="container mx-auto px-4 max-w-4xl text-center">
+            <div 
+              className="prose-luxury"
+              dangerouslySetInnerHTML={{ __html: cms.content }}
+            />
+          </div>
+        </div>
+      )}
       
       <div className="py-24 bg-cream/30">
         <div className="container mx-auto px-4">

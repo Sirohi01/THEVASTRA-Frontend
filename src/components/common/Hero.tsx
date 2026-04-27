@@ -33,7 +33,7 @@ export const Hero = () => {
   }
 
   return (
-    <section className="relative h-[60vh] md:h-screen w-full overflow-hidden flex items-center pt-20 md:pt-0">
+    <section className="relative w-full aspect-[4/3] md:aspect-[16/9] overflow-hidden flex items-center pt-20 md:pt-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={current}

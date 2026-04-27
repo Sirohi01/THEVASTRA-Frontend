@@ -112,9 +112,19 @@ export default function ShopPage() {
           </div>
         )}
 
+        {/* Main Content Section from CMS */}
+        {cmsData?.content && (
+          <div className="mt-20 border-t border-accent pt-16 max-w-4xl mx-auto">
+            <div 
+              className="prose-luxury text-center"
+              dangerouslySetInnerHTML={{ __html: cmsData.content }}
+            />
+          </div>
+        )}
+
         {/* Pagination */}
         {data?.pages > 1 && (
-          <div className="mt-20 flex justify-center items-center gap-4">
+          <div className="mt-20 flex justify-center items-center gap-4 pb-20">
             <button 
               disabled={filters.page === 1}
               onClick={() => handleFilterChange('page', (filters.page - 1).toString())}

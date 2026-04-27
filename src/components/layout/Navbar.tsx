@@ -33,14 +33,16 @@ export const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? "bg-background/95 backdrop-blur-md shadow-sm py-4" : "bg-transparent py-6"
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
+          isScrolled 
+            ? "bg-white/95 backdrop-blur-md shadow-md py-4" 
+            : "bg-gradient-to-b from-black/60 to-transparent py-6"
         }`}
       >
         <div className="container mx-auto px-4 md:px-8 flex items-center justify-between">
           {/* Mobile Menu Toggle */}
           <button
-            className="md:hidden text-primary"
+            className={`md:hidden transition-colors ${isScrolled ? "text-primary" : "text-white"}`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
@@ -49,10 +51,10 @@ export const Navbar = () => {
 
           {/* Logo */}
           <Link href="/" className="flex flex-col items-center" aria-label="TheVastraHouse Home">
-            <h1 className={`font-serif text-lg md:text-3xl tracking-widest text-primary font-bold`}>
+            <h1 className={`font-serif text-lg md:text-3xl tracking-widest font-bold transition-colors ${isScrolled ? "text-primary" : "text-white"}`}>
               THEVASTRAHOUSE
             </h1>
-            <span className="text-[8px] md:text-[10px] tracking-[0.3em] text-secondary uppercase font-medium">
+            <span className={`text-[8px] md:text-[10px] tracking-[0.3em] uppercase font-medium transition-colors ${isScrolled ? "text-secondary" : "text-white/80"}`}>
               Premium Ethnic Wear
             </span>
           </Link>
@@ -63,7 +65,9 @@ export const Navbar = () => {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm uppercase tracking-widest text-foreground/80 hover:text-primary transition-colors font-medium"
+                className={`text-sm uppercase tracking-widest transition-colors font-medium ${
+                  isScrolled ? "text-foreground/80 hover:text-primary" : "text-white/90 hover:text-white"
+                }`}
               >
                 {link.name}
               </Link>
@@ -71,7 +75,7 @@ export const Navbar = () => {
           </div>
 
           {/* Icons (Desktop Only) */}
-          <div className="hidden md:flex items-center space-x-8 text-primary">
+          <div className={`hidden md:flex items-center space-x-8 transition-colors ${isScrolled ? "text-primary" : "text-white"}`}>
             <button className="hover:text-secondary transition-colors" aria-label="Search products">
               <Search size={20} />
             </button>
@@ -80,7 +84,7 @@ export const Navbar = () => {
             </Link>
             <button className="hover:text-secondary transition-colors relative" aria-label="Wishlist">
               <Heart size={20} />
-              <span className="absolute -top-2 -right-2 bg-secondary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+              <span className={`absolute -top-2 -right-2 text-[10px] w-4 h-4 rounded-full flex items-center justify-center ${isScrolled ? "bg-secondary text-white" : "bg-white text-primary"}`}>0</span>
             </button>
             <button 
               onClick={() => setIsCartOpen(true)}
@@ -88,7 +92,7 @@ export const Navbar = () => {
             >
               <ShoppingBag size={20} />
               {items.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">
+                <span className={`absolute -top-2 -right-2 text-[10px] w-4 h-4 rounded-full flex items-center justify-center ${isScrolled ? "bg-primary text-white" : "bg-white text-primary"}`}>
                   {items.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}

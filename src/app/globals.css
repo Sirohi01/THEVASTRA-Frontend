@@ -61,3 +61,39 @@
     background-position: -200% 0;
   }
 }
+
+/* CMS Content Typography */
+.prose-luxury {
+  @apply text-foreground/80 leading-relaxed font-serif;
+}
+
+.prose-luxury h1, 
+.prose-luxury h2, 
+.prose-luxury h3, 
+.prose-luxury h4 {
+  @apply text-primary uppercase tracking-[0.2em] font-bold mb-6 mt-12 first:mt-0;
+}
+
+.prose-luxury h2 {
+  @apply text-2xl md:text-3xl;
+}
+
+.prose-luxury h3 {
+  @apply text-xl text-secondary;
+}
+
+.prose-luxury p {
+  @apply mb-6 text-sm md:text-base;
+}
+
+.prose-luxury strong {
+  @apply text-primary font-bold;
+}
+
+.prose-luxury ul, .prose-luxury ol {
+  @apply mb-8 space-y-3 pl-6;
+}
+
+.prose-luxury li {
+  @apply list-disc list-outside;
+}
