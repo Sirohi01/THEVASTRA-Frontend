@@ -17,6 +17,29 @@ export default function Home() {
     }
   });
 
+  const { data: storyData } = useQuery({
+    queryKey: ['cms-content', 'home-story'],
+    queryFn: async () => {
+      try {
+        const { data } = await API.get('/cms/content/home-story');
+        return data.content;
+      } catch (e) {
+        return null;
+      }
+    }
+  });
+
+  const { data: promises } = useQuery({
+    queryKey: ['cms-content', 'promises'],
+    queryFn: async () => {
+      const keys = ['promise-1', 'promise-2', 'promise-3'];
+      const results = await Promise.all(
+        keys.map(key => API.get(`/cms/content/${key}`).then(res => res.data.content).catch(() => null))
+      );
+      return results;
+    }
+  });
+
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
@@ -70,31 +93,42 @@ export default function Home() {
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
+            {/* Promise 1 */}
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-cream rounded-full flex items-center justify-center mb-6 text-secondary">
                 <span className="text-2xl font-serif">01</span>
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Handcrafted Excellence</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest mb-4">
+                {promises?.[0]?.title || "Handcrafted Excellence"}
+              </h3>
               <p className="text-secondary text-sm leading-relaxed max-w-xs">
-                Each piece is a masterpiece, crafted by master artisans using centuries-old techniques.
+                {promises?.[0]?.content || "Each piece is a masterpiece, crafted by master artisans using centuries-old techniques."}
               </p>
             </div>
+            
+            {/* Promise 2 */}
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-cream rounded-full flex items-center justify-center mb-6 text-secondary">
                 <span className="text-2xl font-serif">02</span>
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Sustainable Luxury</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest mb-4">
+                {promises?.[1]?.title || "Sustainable Luxury"}
+              </h3>
               <p className="text-secondary text-sm leading-relaxed max-w-xs">
-                Committed to conscious fashion, using organic silks and ethically sourced materials.
+                {promises?.[1]?.content || "Committed to conscious fashion, using organic silks and ethically sourced materials."}
               </p>
             </div>
+
+            {/* Promise 3 */}
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-cream rounded-full flex items-center justify-center mb-6 text-secondary">
                 <span className="text-2xl font-serif">03</span>
               </div>
-              <h3 className="text-sm font-bold uppercase tracking-widest mb-4">Royal Heritage</h3>
+              <h3 className="text-sm font-bold uppercase tracking-widest mb-4">
+                {promises?.[2]?.title || "Royal Heritage"}
+              </h3>
               <p className="text-secondary text-sm leading-relaxed max-w-xs">
-                Designs that celebrate the regality of Indian culture while embracing modern silhouettes.
+                {promises?.[2]?.content || "Designs that celebrate the regality of Indian culture while embracing modern silhouettes."}
               </p>
             </div>
           </div>
@@ -130,11 +164,11 @@ export default function Home() {
               initial={{ opacity: 0, x: -50 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="relative aspect-[3/2] overflow-hidden"
+              className="relative aspect-[3/2] overflow-hidden bg-accent/20"
             >
               <img 
-                src="https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop" 
-                alt="Our Heritage"
+                src={storyData?.headerImage || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"} 
+                alt={storyData?.title || "Our Heritage"}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 border-[15px] border-white/20 m-4" />
@@ -145,12 +179,19 @@ export default function Home() {
               viewport={{ once: true }}
               className="space-y-8"
             >
-              <p className="text-secondary tracking-[0.5em] uppercase text-[10px] font-bold">The Vastra Story</p>
-              <h2 className="text-4xl md:text-5xl font-serif text-primary uppercase leading-tight">Crafting Legacies Since 1985</h2>
-              <p className="text-secondary leading-relaxed font-light">
-                Every thread tells a story of heritage, every pattern a whisper of ancient craft. At TheVastraHouse, we don't just create garments; we weave the very fabric of royalty for the modern connoisseur.
+              <p className="text-secondary tracking-[0.5em] uppercase text-[10px] font-bold">
+                {storyData?.subtitle || "The Vastra Story"}
               </p>
-              <Button variant="outline" className="tracking-[0.3em] uppercase text-[10px]">Read Our Story</Button>
+              <h2 className="text-4xl md:text-5xl font-serif text-primary uppercase leading-tight">
+                {storyData?.title || "Crafting Legacies Since 1985"}
+              </h2>
+              <div 
+                className="text-secondary leading-relaxed font-light prose-luxury"
+                dangerouslySetInnerHTML={{ __html: storyData?.content || "<p>Every thread tells a story of heritage, every pattern a whisper of ancient craft. At TheVastraHouse, we don't just create garments; we weave the very fabric of royalty for the modern connoisseur.</p>" }}
+              />
+              <Link href="/about-us">
+                <Button variant="outline" className="tracking-[0.3em] uppercase text-[10px]">Read Our Story</Button>
+              </Link>
             </motion.div>
           </div>
         </div>

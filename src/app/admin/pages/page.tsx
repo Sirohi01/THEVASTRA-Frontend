@@ -14,6 +14,10 @@ const EDITABLE_PAGES = [
   { key: 'contact', name: 'Contact Information', ratio: '3:1 (1920x600)' },
   { key: 'shipping-returns', name: 'Shipping & Returns', ratio: '3:1 (1920x600)' },
   { key: 'privacy-policy', name: 'Privacy Policy', ratio: '3:1 (1920x600)' },
+  { key: 'home-story', name: 'Home / Brand Story', ratio: '3:2 (1200x800)' },
+  { key: 'promise-1', name: 'Home / Promise 1', ratio: 'N/A' },
+  { key: 'promise-2', name: 'Home / Promise 2', ratio: 'N/A' },
+  { key: 'promise-3', name: 'Home / Promise 3', ratio: 'N/A' },
 ];
 
 const ASPECT_RATIOS = [
