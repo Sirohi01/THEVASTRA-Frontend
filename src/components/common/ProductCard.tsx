@@ -85,6 +85,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             <h3 className="text-sm uppercase tracking-wider text-foreground hover:text-primary transition-colors">
               {product.name}
             </h3>
+            {product.variants?.[0]?.sku && (
+              <p className="text-[8px] text-secondary/60 mt-1 uppercase tracking-tighter">SKU: {product.variants[0].sku}</p>
+            )}
           </Link>
         </div>
         <p className="text-sm font-medium text-primary">

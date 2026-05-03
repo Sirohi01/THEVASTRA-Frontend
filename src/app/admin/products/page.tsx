@@ -20,8 +20,7 @@ export default function AdminProductsPage() {
     category: "",
     basePrice: 0,
     image: "",
-    stock: 0,
-    sku: ""
+    variants: [{ size: "", color: "", stock: 0, sku: "", price: 0 }]
   });
 
   const { data: products, isLoading } = useQuery({
@@ -68,6 +67,24 @@ export default function AdminProductsPage() {
     reader.readAsDataURL(file);
   };
 
+  const addVariant = () => {
+    setFormData({
+      ...formData,
+      variants: [...formData.variants, { size: "", color: "", stock: 0, sku: "", price: formData.basePrice }]
+    });
+  };
+
+  const removeVariant = (index: number) => {
+    const newVariants = formData.variants.filter((_, i) => i !== index);
+    setFormData({ ...formData, variants: newVariants });
+  };
+
+  const updateVariant = (index: number, field: string, value: any) => {
+    const newVariants = [...formData.variants];
+    newVariants[index] = { ...newVariants[index], [field]: value };
+    setFormData({ ...formData, variants: newVariants });
+  };
+
   const openModal = (product: any = null) => {
     if (product) {
       setEditingProduct(product);
@@ -77,12 +94,18 @@ export default function AdminProductsPage() {
         category: product.category?._id || "",
         basePrice: product.basePrice,
         image: product.images[0]?.url || "",
-        stock: product.variants[0]?.stock || 0,
-        sku: product.variants[0]?.sku || ""
+        variants: product.variants?.length > 0 ? product.variants : [{ size: "Standard", color: "Default", stock: 0, sku: "", price: product.basePrice }]
       });
     } else {
       setEditingProduct(null);
-      setFormData({ name: "", description: "", category: "", basePrice: 0, image: "", stock: 0, sku: "" });
+      setFormData({ 
+        name: "", 
+        description: "", 
+        category: "", 
+        basePrice: 0, 
+        image: "", 
+        variants: [{ size: "", color: "", stock: 0, sku: "", price: 0 }] 
+      });
     }
     setIsModalOpen(true);
   };
@@ -122,41 +145,46 @@ export default function AdminProductsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-accent">
-            {products?.map((product: any) => (
-              <tr key={product._id} className="hover:bg-cream/20 transition-colors group">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-12 h-16 bg-accent/20 rounded overflow-hidden">
-                      {product.images[0]?.url && <Image src={product.images[0].url} alt={product.name} fill className="object-cover" />}
+            {products?.map((product: any) => {
+              const totalStock = product.variants?.reduce((acc: number, v: any) => acc + (v.stock || 0), 0) || 0;
+              return (
+                <tr key={product._id} className="hover:bg-cream/20 transition-colors group">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-12 h-16 bg-accent/20 rounded overflow-hidden">
+                        {product.images[0]?.url && <Image src={product.images[0].url} alt={product.name} fill className="object-cover" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-primary">{product.name}</p>
+                        <p className="text-[10px] text-secondary uppercase tracking-widest">
+                          {product.variants?.length || 0} Variants
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-primary">{product.name}</p>
-                      <p className="text-[10px] text-secondary uppercase tracking-widest">SKU: {product.variants[0]?.sku || 'N/A'}</p>
+                  </td>
+                  <td className="px-6 py-4 text-xs font-medium text-secondary uppercase tracking-widest">{product.category?.name}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-primary">₹{product.basePrice.toLocaleString()}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${totalStock > 5 ? 'text-green-700' : 'text-red-700'}`}>
+                      {totalStock} Total Left
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => openModal(product)} className="p-2 text-secondary hover:text-primary transition-colors">
+                        <Edit size={16} />
+                      </button>
+                      <button 
+                        onClick={() => { if(confirm("Are you sure?")) deleteMutation.mutate(product._id); }}
+                        className="p-2 text-secondary hover:text-red-700 transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-xs font-medium text-secondary uppercase tracking-widest">{product.category?.name}</td>
-                <td className="px-6 py-4 text-sm font-bold text-primary">₹{product.basePrice.toLocaleString()}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${product.variants[0]?.stock > 5 ? 'text-green-700' : 'text-red-700'}`}>
-                    {product.variants[0]?.stock} Left
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openModal(product)} className="p-2 text-secondary hover:text-primary transition-colors">
-                      <Edit size={16} />
-                    </button>
-                    <button 
-                      onClick={() => { if(confirm("Are you sure?")) deleteMutation.mutate(product._id); }}
-                      className="p-2 text-secondary hover:text-red-700 transition-colors"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -176,8 +204,8 @@ export default function AdminProductsPage() {
               {editingProduct ? 'Edit Masterpiece' : 'Add New Masterpiece'}
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+              <div className="md:col-span-4 space-y-6">
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Product Name</label>
                   <input 
@@ -197,49 +225,27 @@ export default function AdminProductsPage() {
                     {categories?.map((cat: any) => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                   </select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Base Price (₹)</label>
-                    <input 
-                      type="number"
-                      className="w-full border border-accent p-3 text-sm focus:border-primary outline-none"
-                      value={formData.basePrice}
-                      onChange={(e) => setFormData({...formData, basePrice: Number(e.target.value)})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Stock Level</label>
-                    <input 
-                      type="number"
-                      className="w-full border border-accent p-3 text-sm focus:border-primary outline-none"
-                      value={formData.stock}
-                      onChange={(e) => setFormData({...formData, stock: Number(e.target.value)})}
-                    />
-                  </div>
-                </div>
-                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">SKU Code</label>
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Base Price (₹)</label>
                   <input 
-                    className="w-full border border-accent p-3 text-sm focus:border-primary outline-none uppercase"
-                    value={formData.sku}
-                    onChange={(e) => setFormData({...formData, sku: e.target.value.toUpperCase()})}
+                    type="number"
+                    className="w-full border border-accent p-3 text-sm focus:border-primary outline-none"
+                    value={formData.basePrice}
+                    onChange={(e) => setFormData({...formData, basePrice: Number(e.target.value)})}
                   />
                 </div>
-              </div>
-
-              <div className="space-y-6">
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Piece Imagery</label>
-                  <div className="border-2 border-dashed border-accent rounded-lg p-10 text-center cursor-pointer hover:bg-cream/30 transition-all relative">
+                  <div className="border-2 border-dashed border-accent rounded-lg p-6 text-center cursor-pointer hover:bg-cream/30 transition-all relative">
                     <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} />
                     {formData.image ? (
-                      <div className="relative h-48 w-full">
-                        <img src={formData.image} className="h-full w-full object-cover rounded" />
+                      <div className="relative h-32 w-full">
+                        <img src={formData.image} className="h-full w-full object-contain rounded" />
                       </div>
                     ) : (
                       <div className="flex flex-col items-center">
-                        <Upload size={32} className="text-secondary mb-3" />
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-secondary">Upload High-Res Shot</p>
+                        <Upload size={24} className="text-secondary mb-2" />
+                        <p className="text-[8px] font-bold uppercase tracking-widest text-secondary">Upload Shot</p>
                       </div>
                     )}
                   </div>
@@ -247,14 +253,103 @@ export default function AdminProductsPage() {
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Description</label>
                   <textarea 
-                    className="w-full border border-accent p-3 text-sm focus:border-primary outline-none h-32 resize-none"
+                    className="w-full border border-accent p-3 text-sm focus:border-primary outline-none h-24 resize-none"
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
                   />
                 </div>
+              </div>
+
+              <div className="md:col-span-8 space-y-6">
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] block">Variants (Sizes & Colors)</label>
+                    <div className="flex gap-2">
+                      <div className="flex gap-1 border-r border-accent pr-2 mr-2">
+                        {['S', 'M', 'L', 'XL', 'XXL'].map(sz => (
+                          <button 
+                            key={sz}
+                            onClick={() => {
+                              setFormData({
+                                ...formData,
+                                variants: [...formData.variants, { size: sz, color: "", stock: 0, sku: "", price: formData.basePrice }]
+                              });
+                            }}
+                            className="px-2 py-1 bg-cream text-[8px] font-bold border border-accent hover:border-primary transition-colors"
+                          >
+                            + {sz}
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={addVariant} className="text-[10px] uppercase tracking-widest font-bold text-primary flex items-center gap-1 hover:underline">
+                        <Plus size={12} /> Custom Variant
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2">
+                    {formData.variants.map((variant, index) => (
+                      <div key={index} className="grid grid-cols-5 gap-2 p-3 bg-cream/30 border border-accent rounded-lg relative group/variant">
+                        <div>
+                          <label className="text-[8px] font-bold uppercase mb-1 block">Size</label>
+                          <input 
+                            placeholder="S, M, L..."
+                            className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
+                            value={variant.size}
+                            onChange={(e) => updateVariant(index, 'size', e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[8px] font-bold uppercase mb-1 block">Color</label>
+                          <input 
+                            placeholder="Red, Gold..."
+                            className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
+                            value={variant.color}
+                            onChange={(e) => updateVariant(index, 'color', e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[8px] font-bold uppercase mb-1 block">Price</label>
+                          <input 
+                            type="number"
+                            className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
+                            value={variant.price}
+                            onChange={(e) => updateVariant(index, 'price', Number(e.target.value))}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[8px] font-bold uppercase mb-1 block">Stock</label>
+                          <input 
+                            type="number"
+                            className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
+                            value={variant.stock}
+                            onChange={(e) => updateVariant(index, 'stock', Number(e.target.value))}
+                          />
+                        </div>
+                        <div className="relative">
+                          <label className="text-[8px] font-bold uppercase mb-1 block">SKU</label>
+                          <input 
+                            className="w-full border border-accent p-2 text-xs outline-none focus:border-primary uppercase"
+                            value={variant.sku}
+                            onChange={(e) => updateVariant(index, 'sku', e.target.value.toUpperCase())}
+                          />
+                          {formData.variants.length > 1 && (
+                            <button 
+                              onClick={() => removeVariant(index)}
+                              className="absolute -right-1 -top-1 bg-red-100 text-red-600 rounded-full p-0.5 opacity-0 group-hover/variant:opacity-100 transition-opacity"
+                            >
+                              <X size={12} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <Button 
                   onClick={() => upsertMutation.mutate(formData)} 
-                  className="w-full py-4 text-xs tracking-widest"
+                  className="w-full py-4 text-xs tracking-widest mt-6"
                   isLoading={upsertMutation.isPending}
                 >
                   {editingProduct ? 'Save Changes' : 'Publish Masterpiece'}

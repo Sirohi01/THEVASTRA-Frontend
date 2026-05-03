@@ -29,12 +29,18 @@ export const useCartStore = create<CartState>()(
       items: [],
       addItem: (newItem) => {
         const items = get().items;
-        const existingItem = items.find(item => item._id === newItem._id);
+        const existingItem = items.find(item => 
+          item._id === newItem._id && 
+          item.variant?.size === newItem.variant?.size && 
+          item.variant?.color === newItem.variant?.color
+        );
         
         if (existingItem) {
           set({
             items: items.map(item =>
-              item._id === newItem._id
+              (item._id === newItem._id && 
+               item.variant?.size === newItem.variant?.size && 
+               item.variant?.color === newItem.variant?.color)
                 ? { ...item, quantity: item.quantity + newItem.quantity }
                 : item
             ),

@@ -68,7 +68,7 @@ export default function Home() {
                 >
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-700 z-10" />
                   <img 
-                    src={category.image || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"} 
+                    src={category.image?.url || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"} 
                     alt={category.name}
                     className="h-full w-full object-cover transition-transform duration-[1.5s] group-hover:scale-110" 
                   />

@@ -38,7 +38,7 @@ export default function CollectionsPage() {
                 className="group relative aspect-video overflow-hidden bg-accent"
               >
                 <img 
-                  src={`https://images.unsplash.com/photo-1594187043532-97417b0ef535?q=80&w=2070&auto=format&fit=crop`} // Placeholder for cat image
+                  src={cat.image?.url || `https://images.unsplash.com/photo-1594187043532-97417b0ef535?q=80&w=2070&auto=format&fit=crop`}
                   alt={cat.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
                 />

@@ -69,9 +69,12 @@ export default function ShopPage() {
             <span className="text-[10px] uppercase tracking-widest text-secondary font-bold">Sort By:</span>
             <select 
               className="bg-transparent border-none text-[10px] uppercase tracking-widest font-bold focus:outline-none cursor-pointer"
+              value={filters.sort}
               onChange={(e) => handleFilterChange('sort', e.target.value)}
             >
-              <option value="newest">Newest</option>
+              <option value="featured">Featured Pieces</option>
+              <option value="newest">New Arrivals</option>
+              <option value="discount">Special Offers</option>
               <option value="price-low">Price: Low to High</option>
               <option value="price-high">Price: High to Low</option>
             </select>
