@@ -73,12 +73,21 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Quick Actions */}
         <div className="absolute bottom-4 left-0 right-0 px-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-500 flex gap-2 z-20">
-          <button 
-            onClick={handleAddToCart}
-            className="flex-1 bg-primary text-white py-2 text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 shadow-xl"
-          >
-            <ShoppingBag size={14} /> Add to Bag
-          </button>
+          {product.variants?.length > 0 ? (
+            <Link href={product.slug ? `/product/${product.slug}` : '#'} className="flex-1">
+              <button className="w-full bg-primary text-white py-2 text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 shadow-xl">
+                Select Size
+              </button>
+            </Link>
+          ) : (
+            <button 
+              onClick={handleAddToCart}
+              disabled={!product.slug}
+              className="flex-1 bg-primary text-white py-2 text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 shadow-xl disabled:opacity-50"
+            >
+              <ShoppingBag size={14} /> Add to Bag
+            </button>
+          )}
           <button 
             onClick={handleToggleWishlist}
             className={`p-2 transition-colors shadow-xl ${isInWishlist(product._id) ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-secondary hover:text-white'}`}

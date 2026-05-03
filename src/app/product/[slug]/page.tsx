@@ -3,8 +3,8 @@ import { ProductDetails } from "@/components/common/ProductDetails";
 import API from "@/services/api";
 import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const { slug } = params;
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   try {
     const { data } = await API.get(`/catalog/products/${slug}`);
     const product = data.product;
@@ -20,9 +20,18 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
-  
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
+  if (!slug || slug === 'undefined') {
+    return (
+      <main className="min-h-screen bg-white">
+        <Navbar />
+        <div className="h-screen flex items-center justify-center uppercase tracking-widest text-xs">Product Not Found</div>
+      </main>
+    );
+  }
+
   let product = null;
   try {
     const { data } = await API.get(`/catalog/products/${slug}`);
