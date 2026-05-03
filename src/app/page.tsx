@@ -7,6 +7,7 @@ import API from "@/services/api";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
+import { ProductCard } from "@/components/common/ProductCard";
 
 export default function Home() {
   const { data: categories, isLoading } = useQuery({
@@ -156,20 +157,7 @@ export default function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {newArrivals ? (
               newArrivals.map((product: any) => (
-                <div key={product._id} className="bg-white p-2 shadow-sm border border-accent/20">
-                  <Link href={`/product/${product.slug}`}>
-                    <div className="aspect-[3/4] relative overflow-hidden mb-4 group">
-                      <img
-                        src={product.images[0]?.url}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                      />
-                      <div className="absolute top-2 left-2 bg-primary text-white text-[8px] font-bold px-2 py-1 uppercase tracking-widest">New</div>
-                    </div>
-                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1 truncate">{product.name}</h3>
-                    <p className="text-xs font-serif text-secondary">₹{product.basePrice.toLocaleString()}</p>
-                  </Link>
-                </div>
+                <ProductCard key={product._id} product={product} />
               ))
             ) : (
               [1, 2, 3, 4].map(i => (

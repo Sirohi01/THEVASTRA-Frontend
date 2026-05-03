@@ -22,7 +22,7 @@ export default function AdminProductsPage() {
     image: "",
     isFeatured: false,
     isNewArrival: false,
-    variants: [{ size: "", color: "", stock: 0, sku: "", price: 0 }]
+    variants: [{ size: "", color: "", stock: 0, sku: "", price: 0, discountPrice: 0 }]
   });
 
   const { data: products, isLoading } = useQuery({
@@ -42,9 +42,16 @@ export default function AdminProductsPage() {
   });
 
   const upsertMutation = useMutation({
-    mutationFn: (data: any) => editingProduct 
-      ? API.put(`/catalog/products/${editingProduct._id}`, data)
-      : API.post('/catalog/products', data),
+    mutationFn: (data: any) => {
+      // Auto-set basePrice from first variant for database consistency
+      const finalData = {
+        ...data,
+        basePrice: data.variants[0]?.price || 0
+      };
+      return editingProduct 
+        ? API.put(`/catalog/products/${editingProduct._id}`, finalData)
+        : API.post('/catalog/products', finalData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success(editingProduct ? "Product updated" : "Product added");
@@ -72,7 +79,7 @@ export default function AdminProductsPage() {
   const addVariant = () => {
     setFormData({
       ...formData,
-      variants: [...formData.variants, { size: "", color: "", stock: 0, sku: "", price: formData.basePrice }]
+      variants: [...formData.variants, { size: "", color: "", stock: 0, sku: "", price: formData.basePrice, discountPrice: 0 }]
     });
   };
 
@@ -98,7 +105,9 @@ export default function AdminProductsPage() {
         image: product.images[0]?.url || "",
         isFeatured: product.isFeatured || false,
         isNewArrival: product.isNewArrival || false,
-        variants: product.variants?.length > 0 ? product.variants : [{ size: "Standard", color: "Default", stock: 0, sku: "", price: product.basePrice }]
+        variants: product.variants?.length > 0 
+          ? product.variants.map((v: any) => ({ ...v, discountPrice: v.discountPrice || 0 }))
+          : [{ size: "Standard", color: "Default", stock: 0, sku: "", price: product.basePrice, discountPrice: 0 }]
       });
     } else {
       setEditingProduct(null);
@@ -110,7 +119,7 @@ export default function AdminProductsPage() {
         image: "", 
         isFeatured: false,
         isNewArrival: false,
-        variants: [{ size: "", color: "", stock: 0, sku: "", price: 0 }] 
+        variants: [{ size: "", color: "", stock: 0, sku: "", price: 0, discountPrice: 0 }] 
       });
     }
     setIsModalOpen(true);
@@ -169,7 +178,16 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-xs font-medium text-secondary uppercase tracking-widest">{product.category?.name}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-primary">₹{product.basePrice.toLocaleString()}</td>
+                  <td className="px-6 py-4">
+                    {product.variants?.[0]?.discountPrice > 0 ? (
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-primary">₹{product.variants[0].discountPrice.toLocaleString()}</span>
+                        <span className="text-[10px] text-secondary line-through opacity-50">₹{product.basePrice.toLocaleString()}</span>
+                      </div>
+                    ) : (
+                      <span className="text-sm font-bold text-primary">₹{product.basePrice.toLocaleString()}</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${totalStock > 5 ? 'text-green-700' : 'text-red-700'}`}>
                       {totalStock} Total Left
@@ -231,17 +249,7 @@ export default function AdminProductsPage() {
                     {categories?.map((cat: any) => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                   </select>
                 </div>
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Base Price (₹)</label>
-                      <input 
-                        type="number"
-                        className="w-full border border-accent p-3 text-sm focus:border-primary outline-none"
-                        value={formData.basePrice}
-                        onChange={(e) => setFormData({...formData, basePrice: Number(e.target.value)})}
-                      />
-                    </div>
-                  </div>
+                  {/* Base Price removed as per user request to simplify UI. It will be auto-calculated from variants. */}
                   <div className="flex gap-6 py-2">
                     <label className="flex items-center gap-2 cursor-pointer group">
                       <input 
@@ -300,7 +308,7 @@ export default function AdminProductsPage() {
                             onClick={() => {
                               setFormData({
                                 ...formData,
-                                variants: [...formData.variants, { size: sz, color: "", stock: 0, sku: "", price: formData.basePrice }]
+                                variants: [...formData.variants, { size: sz, color: "", stock: 0, sku: "", price: formData.basePrice, discountPrice: 0 }]
                               });
                             }}
                             className="px-2 py-1 bg-cream text-[8px] font-bold border border-accent hover:border-primary transition-colors"
@@ -317,11 +325,11 @@ export default function AdminProductsPage() {
                   
                   <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2">
                     {formData.variants.map((variant, index) => (
-                      <div key={index} className="grid grid-cols-5 gap-2 p-3 bg-cream/30 border border-accent rounded-lg relative group/variant">
+                      <div key={index} className="grid grid-cols-6 gap-2 p-3 bg-cream/30 border border-accent rounded-lg relative group/variant">
                         <div>
                           <label className="text-[8px] font-bold uppercase mb-1 block">Size</label>
                           <input 
-                            placeholder="S, M, L..."
+                            placeholder="S, M..."
                             className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
                             value={variant.size}
                             onChange={(e) => updateVariant(index, 'size', e.target.value)}
@@ -330,19 +338,29 @@ export default function AdminProductsPage() {
                         <div>
                           <label className="text-[8px] font-bold uppercase mb-1 block">Color</label>
                           <input 
-                            placeholder="Red, Gold..."
+                            placeholder="Red..."
                             className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
                             value={variant.color}
                             onChange={(e) => updateVariant(index, 'color', e.target.value)}
                           />
                         </div>
                         <div>
-                          <label className="text-[8px] font-bold uppercase mb-1 block">Price</label>
+                          <label className="text-[8px] font-bold uppercase mb-1 block">M.R.P</label>
                           <input 
                             type="number"
                             className="w-full border border-accent p-2 text-xs outline-none focus:border-primary"
                             value={variant.price}
                             onChange={(e) => updateVariant(index, 'price', Number(e.target.value))}
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[8px] font-bold uppercase mb-1 block">Sale Price</label>
+                          <input 
+                            type="number"
+                            placeholder="Optional"
+                            className="w-full border border-accent p-2 text-xs outline-none focus:border-primary font-bold text-green-700"
+                            value={variant.discountPrice || ""}
+                            onChange={(e) => updateVariant(index, 'discountPrice', Number(e.target.value))}
                           />
                         </div>
                         <div>

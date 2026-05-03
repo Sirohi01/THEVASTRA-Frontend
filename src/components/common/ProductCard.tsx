@@ -59,17 +59,29 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           />
         </Link>
         
+        {/* Badges */}
+        <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
+          {product.isNewArrival && (
+            <span className="bg-primary text-white text-[8px] font-bold px-2 py-1 uppercase tracking-widest shadow-lg">New Arrival</span>
+          )}
+          {product.variants?.[0]?.discountPrice > 0 && (
+            <span className="bg-secondary text-white text-[8px] font-bold px-2 py-1 uppercase tracking-widest shadow-lg">
+              {Math.round(((product.basePrice - product.variants[0].discountPrice) / product.basePrice) * 100)}% OFF
+            </span>
+          )}
+        </div>
+
         {/* Quick Actions */}
-        <div className="absolute bottom-4 left-0 right-0 px-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-500 flex gap-2">
+        <div className="absolute bottom-4 left-0 right-0 px-4 translate-y-12 group-hover:translate-y-0 transition-transform duration-500 flex gap-2 z-20">
           <button 
             onClick={handleAddToCart}
-            className="flex-1 bg-primary text-white py-2 text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90"
+            className="flex-1 bg-primary text-white py-2 text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-primary/90 shadow-xl"
           >
-            <ShoppingBag size={14} /> Add to Cart
+            <ShoppingBag size={14} /> Add to Bag
           </button>
           <button 
             onClick={handleToggleWishlist}
-            className={`p-2 transition-colors ${isInWishlist(product._id) ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-secondary hover:text-white'}`}
+            className={`p-2 transition-colors shadow-xl ${isInWishlist(product._id) ? 'bg-primary text-white' : 'bg-white text-primary hover:bg-secondary hover:text-white'}`}
           >
             <Heart size={16} fill={isInWishlist(product._id) ? "currentColor" : "none"} />
           </button>
@@ -77,22 +89,31 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </div>
 
       <div className="mt-4 flex justify-between items-start">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-secondary font-semibold mb-1">
+        <div className="max-w-[70%]">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-1 opacity-80">
             {product.category?.name}
           </p>
           <Link href={`/product/${product.slug}`}>
-            <h3 className="text-sm uppercase tracking-wider text-foreground hover:text-primary transition-colors">
+            <h3 className="text-sm font-serif text-primary hover:text-secondary transition-colors truncate">
               {product.name}
             </h3>
             {product.variants?.[0]?.sku && (
-              <p className="text-[8px] text-secondary/60 mt-1 uppercase tracking-tighter">SKU: {product.variants[0].sku}</p>
+              <p className="text-[9px] text-secondary/50 mt-1 uppercase tracking-widest">SKU: {product.variants[0].sku}</p>
             )}
           </Link>
         </div>
-        <p className="text-sm font-medium text-primary">
-          ₹{product.basePrice?.toLocaleString()}
-        </p>
+        <div className="text-right">
+          {product.variants?.[0]?.discountPrice > 0 ? (
+            <div className="flex flex-col items-end">
+              <p className="text-sm font-bold text-primary">₹{product.variants[0].discountPrice.toLocaleString()}</p>
+              <p className="text-[10px] text-secondary line-through opacity-50">₹{product.basePrice?.toLocaleString()}</p>
+            </div>
+          ) : (
+            <p className="text-sm font-bold text-primary">
+              ₹{product.basePrice?.toLocaleString()}
+            </p>
+          )}
+        </div>
       </div>
     </motion.div>
   );
