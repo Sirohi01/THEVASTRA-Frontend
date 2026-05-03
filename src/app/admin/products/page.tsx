@@ -20,6 +20,8 @@ export default function AdminProductsPage() {
     category: "",
     basePrice: 0,
     image: "",
+    isFeatured: false,
+    isNewArrival: false,
     variants: [{ size: "", color: "", stock: 0, sku: "", price: 0 }]
   });
 
@@ -94,6 +96,8 @@ export default function AdminProductsPage() {
         category: product.category?._id || "",
         basePrice: product.basePrice,
         image: product.images[0]?.url || "",
+        isFeatured: product.isFeatured || false,
+        isNewArrival: product.isNewArrival || false,
         variants: product.variants?.length > 0 ? product.variants : [{ size: "Standard", color: "Default", stock: 0, sku: "", price: product.basePrice }]
       });
     } else {
@@ -104,6 +108,8 @@ export default function AdminProductsPage() {
         category: "", 
         basePrice: 0, 
         image: "", 
+        isFeatured: false,
+        isNewArrival: false,
         variants: [{ size: "", color: "", stock: 0, sku: "", price: 0 }] 
       });
     }
@@ -225,15 +231,37 @@ export default function AdminProductsPage() {
                     {categories?.map((cat: any) => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
                   </select>
                 </div>
-                <div>
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Base Price (₹)</label>
-                  <input 
-                    type="number"
-                    className="w-full border border-accent p-3 text-sm focus:border-primary outline-none"
-                    value={formData.basePrice}
-                    onChange={(e) => setFormData({...formData, basePrice: Number(e.target.value)})}
-                  />
-                </div>
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Base Price (₹)</label>
+                      <input 
+                        type="number"
+                        className="w-full border border-accent p-3 text-sm focus:border-primary outline-none"
+                        value={formData.basePrice}
+                        onChange={(e) => setFormData({...formData, basePrice: Number(e.target.value)})}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-6 py-2">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 accent-primary"
+                        checked={formData.isFeatured}
+                        onChange={(e) => setFormData({...formData, isFeatured: e.target.checked})}
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">Mark as Featured</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="checkbox" 
+                        className="w-4 h-4 accent-primary"
+                        checked={formData.isNewArrival}
+                        onChange={(e) => setFormData({...formData, isNewArrival: e.target.checked})}
+                      />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-secondary group-hover:text-primary transition-colors">New Arrival</span>
+                    </label>
+                  </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Piece Imagery</label>
                   <div className="border-2 border-dashed border-accent rounded-lg p-6 text-center cursor-pointer hover:bg-cream/30 transition-all relative">

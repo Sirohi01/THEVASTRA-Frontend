@@ -40,12 +40,18 @@ export default function Home() {
     }
   });
 
+  const { data: newArrivals } = useQuery({
+    queryKey: ['new-arrivals'],
+    queryFn: async () => {
+      const { data } = await API.get('/catalog/products?sort=newest&limit=4');
+      return data.products;
+    }
+  });
+
   return (
     <main className="min-h-screen bg-white">
       <Navbar />
       <Hero />
-      
-      {/* Dynamic Featured Collections */}
       <section className="py-24 bg-cream overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center mb-16 text-center">
@@ -53,24 +59,24 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl text-primary font-serif uppercase leading-tight">Timeless Collections</h2>
             <div className="w-24 h-[1px] bg-secondary mt-6" />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {isLoading ? (
               [1, 2, 3].map(i => <div key={i} className="h-[500px] bg-accent animate-pulse rounded-sm" />)
             ) : (
               categories?.slice(0, 3).map((category: any) => (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  key={category._id} 
+                  key={category._id}
                   className="group relative overflow-hidden aspect-square cursor-pointer"
                 >
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-700 z-10" />
-                  <img 
-                    src={category.image?.url || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"} 
+                  <img
+                    src={category.image?.url || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"}
                     alt={category.name}
-                    className="h-full w-full object-cover transition-transform duration-[1.5s] group-hover:scale-110" 
+                    className="h-full w-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-8 text-center">
                     <h3 className="text-white text-3xl font-serif tracking-widest uppercase mb-4 transform translate-y-4 group-hover:translate-y-0 transition-all duration-700">
@@ -105,7 +111,7 @@ export default function Home() {
                 {promises?.[0]?.content || "Each piece is a masterpiece, crafted by master artisans using centuries-old techniques."}
               </p>
             </div>
-            
+
             {/* Promise 2 */}
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-cream rounded-full flex items-center justify-center mb-6 text-secondary">
@@ -143,15 +149,33 @@ export default function Home() {
               <p className="text-secondary tracking-[0.4em] uppercase text-[10px] font-bold mb-2">The Latest Drops</p>
               <h2 className="text-4xl font-serif text-primary uppercase">New Arrivals</h2>
             </div>
-            <Link href="/new-arrivals" className="text-[10px] font-bold uppercase tracking-widest border-b border-primary text-primary hover:text-secondary transition-colors">
+            <Link href="/shop?sort=newest" className="text-[10px] font-bold uppercase tracking-widest border-b border-primary text-primary hover:text-secondary transition-colors">
               Explore All
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* Products will be rendered here by a separate component or fetched here */}
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="aspect-[3/4] bg-white animate-pulse" />
-            ))}
+            {newArrivals ? (
+              newArrivals.map((product: any) => (
+                <div key={product._id} className="bg-white p-2 shadow-sm border border-accent/20">
+                  <Link href={`/product/${product.slug}`}>
+                    <div className="aspect-[3/4] relative overflow-hidden mb-4 group">
+                      <img
+                        src={product.images[0]?.url}
+                        alt={product.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute top-2 left-2 bg-primary text-white text-[8px] font-bold px-2 py-1 uppercase tracking-widest">New</div>
+                    </div>
+                    <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1 truncate">{product.name}</h3>
+                    <p className="text-xs font-serif text-secondary">₹{product.basePrice.toLocaleString()}</p>
+                  </Link>
+                </div>
+              ))
+            ) : (
+              [1, 2, 3, 4].map(i => (
+                <div key={i} className="aspect-[3/4] bg-white animate-pulse" />
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -166,8 +190,8 @@ export default function Home() {
               viewport={{ once: true }}
               className="relative aspect-[3/2] overflow-hidden bg-accent/20"
             >
-              <img 
-                src={storyData?.headerImage || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"} 
+              <img
+                src={storyData?.headerImage || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"}
                 alt={storyData?.title || "Our Heritage"}
                 className="w-full h-full object-cover"
               />
@@ -185,7 +209,7 @@ export default function Home() {
               <h2 className="text-4xl md:text-5xl font-serif text-primary uppercase leading-tight">
                 {storyData?.title || "Crafting Legacies Since 1985"}
               </h2>
-              <div 
+              <div
                 className="text-secondary leading-relaxed font-light prose-luxury"
                 dangerouslySetInnerHTML={{ __html: storyData?.content || "<p>Every thread tells a story of heritage, every pattern a whisper of ancient craft. At TheVastraHouse, we don't just create garments; we weave the very fabric of royalty for the modern connoisseur.</p>" }}
               />
