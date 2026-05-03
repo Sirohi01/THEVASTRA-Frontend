@@ -19,13 +19,18 @@ export function ProductDetails({ product }: { product: any }) {
   useEffect(() => {
     if (product) {
       addProduct(product);
-      // Set default selections if available
+    }
+  }, [product?._id, addProduct]);
+
+  // Set initial selections ONLY ONCE when product loads
+  useEffect(() => {
+    if (product && !selectedSize && !selectedColor) {
       if (product.variants?.length > 0) {
         setSelectedSize(product.variants[0].size);
         setSelectedColor(product.variants[0].color);
       }
     }
-  }, [product, addProduct]);
+  }, [product]);
 
   useEffect(() => {
     if (selectedSize && selectedColor) {
@@ -56,13 +61,13 @@ export function ProductDetails({ product }: { product: any }) {
     toast.success("Added to your bag");
   };
 
-  const colors = Array.from(new Set(product.variants.map((v: any) => v.color)));
-  // Only show sizes available for the selected color (or all if no color selected)
-  const sizes = Array.from(new Set(
-    product.variants
-      .filter((v: any) => !selectedColor || v.color === selectedColor)
-      .map((v: any) => v.size)
-  ));
+  const allColors = Array.from(new Set(product.variants.map((v: any) => v.color)));
+  const allSizes = Array.from(new Set(product.variants.map((v: any) => v.size)));
+
+  // Helper to check if a combination exists
+  const isCombinationAvailable = (size: string, color: string) => {
+    return product.variants.some((v: any) => v.size === size && v.color === color && v.stock > 0);
+  };
 
   const displayPrice = currentVariant ? currentVariant.price : product.basePrice;
 
@@ -77,7 +82,14 @@ export function ProductDetails({ product }: { product: any }) {
             key={i}
             className={`relative aspect-[3/4] bg-accent ${i === 0 ? 'md:col-span-2' : ''}`}
           >
-            <Image src={img.url} alt={product.name} fill className="object-cover" />
+            <Image 
+              src={img.url} 
+              alt={product.name} 
+              fill 
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority={i === 0}
+              className="object-cover" 
+            />
           </motion.div>
         ))}
       </div>
@@ -100,45 +112,56 @@ export function ProductDetails({ product }: { product: any }) {
 
         <div className="py-8 space-y-8 border-b border-accent">
           {/* Color Selection */}
-          {colors.length > 0 && (
-            <div>
-              <h3 className="text-[10px] uppercase tracking-widest font-bold mb-4 text-primary">Select Color: <span className="font-normal text-secondary">{selectedColor || "None selected"}</span></h3>
-              <div className="flex flex-wrap gap-3">
-                {colors.map((color: any) => (
-                  <button
-                    key={color as string}
-                    onClick={() => {
-                        setSelectedColor(color as string);
-                        // Reset size if not available for new color
-                        const availableSizes = product.variants.filter((v: any) => v.color === color).map((v: any) => v.size);
-                        if (!availableSizes.includes(selectedSize)) setSelectedSize("");
-                    }}
-                    className={`px-4 py-2 text-xs uppercase tracking-widest border transition-all ${selectedColor === color ? 'bg-primary text-white border-primary' : 'border-accent text-secondary hover:border-primary'}`}
-                  >
-                    {color as string}
-                  </button>
-                ))}
+          {allColors.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary">Color: <span className="text-secondary font-medium ml-2">{selectedColor || "Select Color"}</span></h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {allColors.map((color: any) => {
+                  const available = product.variants.some((v: any) => v.color === color && (selectedSize ? v.size === selectedSize : true));
+                  return (
+                    <button
+                      key={color as string}
+                      onClick={() => setSelectedColor(color as string)}
+                      className={`h-12 px-6 text-[10px] uppercase tracking-widest font-bold border transition-all duration-300 ${
+                        selectedColor === color 
+                        ? 'bg-primary text-white border-primary shadow-lg scale-105' 
+                        : 'border-accent text-secondary hover:border-primary bg-white'
+                      } ${!available ? 'opacity-30' : 'opacity-100'}`}
+                    >
+                      {color as string}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Size Selection */}
-          {sizes.length > 0 && (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-[10px] uppercase tracking-widest font-bold text-primary">Select Size: <span className="font-normal text-secondary">{selectedSize || "None selected"}</span></h3>
-                <button className="text-[10px] uppercase tracking-widest text-secondary underline">Size Guide</button>
+          {allSizes.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary">Size: <span className="text-secondary font-medium ml-2">{selectedSize || "Select Size"}</span></h3>
+                <button className="text-[10px] uppercase tracking-widest text-secondary/60 hover:text-primary transition-colors border-b border-accent/50 pb-0.5">Size Guide</button>
               </div>
-              <div className="flex flex-wrap gap-3">
-                {sizes.map((size: any) => (
-                  <button
-                    key={size as string}
-                    onClick={() => setSelectedSize(size as string)}
-                    className={`min-w-[3rem] h-12 px-3 text-xs uppercase border flex items-center justify-center transition-all ${selectedSize === size ? 'bg-primary text-white border-primary' : 'border-accent text-secondary hover:border-primary'}`}
-                  >
-                    {size as string}
-                  </button>
-                ))}
+              <div className="flex flex-wrap gap-2">
+                {allSizes.map((size: any) => {
+                  const available = product.variants.some((v: any) => v.size === size && (selectedColor ? v.color === selectedColor : true));
+                  return (
+                    <button
+                      key={size as string}
+                      onClick={() => setSelectedSize(size as string)}
+                      className={`min-w-[3.5rem] h-12 px-4 text-[10px] uppercase tracking-widest font-bold border transition-all duration-300 ${
+                        selectedSize === size 
+                        ? 'bg-primary text-white border-primary shadow-lg scale-105' 
+                        : 'border-accent text-secondary hover:border-primary bg-white'
+                      } ${!available ? 'opacity-30 line-through' : 'opacity-100'}`}
+                    >
+                      {size as string}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
