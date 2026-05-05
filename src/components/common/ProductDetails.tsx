@@ -47,13 +47,18 @@ export function ProductDetails({ product }: { product: any }) {
       return;
     }
     
-    const price = currentVariant ? currentVariant.price : product.basePrice;
+    const price = currentVariant 
+      ? (currentVariant.discountPrice || currentVariant.price) 
+      : product.basePrice;
+    
+    const originalPrice = currentVariant ? currentVariant.price : product.basePrice;
     
     addItem({
       _id: product._id,
       name: product.name,
       slug: product.slug,
       price: price,
+      originalPrice: originalPrice,
       image: product.images[0].url,
       quantity: 1,
       variant: { size: selectedSize, color: selectedColor }
@@ -100,9 +105,9 @@ export function ProductDetails({ product }: { product: any }) {
           <p className="text-secondary tracking-[0.2em] uppercase text-xs font-bold mb-2">{product.category?.name}</p>
           <h1 className="text-4xl font-serif text-primary mb-4 leading-tight">{product.name}</h1>
           <div className="flex items-center gap-4">
-            <p className="text-2xl text-primary font-medium">₹{displayPrice.toLocaleString()}</p>
-            {currentVariant?.discountPrice && (
-                <p className="text-lg text-secondary line-through">₹{currentVariant.discountPrice.toLocaleString()}</p>
+            <p className="text-2xl text-primary font-medium">₹{(currentVariant?.discountPrice || displayPrice).toLocaleString()}</p>
+            {currentVariant?.discountPrice > 0 && (
+              <p className="text-lg text-secondary line-through opacity-50 font-light">₹{currentVariant.price.toLocaleString()}</p>
             )}
           </div>
           {currentVariant?.sku && (

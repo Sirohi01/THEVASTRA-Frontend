@@ -6,6 +6,7 @@ interface WishlistItem {
   name: string;
   slug: string;
   price: number;
+  originalPrice?: number;
   image: string;
 }
 

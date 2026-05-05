@@ -6,6 +6,7 @@ interface CartItem {
   name: string;
   slug: string;
   price: number;
+  originalPrice?: number;
   image: string;
   quantity: number;
   variant?: {
@@ -17,8 +18,8 @@ interface CartItem {
 interface CartState {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (id: string, variant?: { size: string, color: string }) => void;
+  updateQuantity: (id: string, variant: { size: string, color: string } | undefined, quantity: number) => void;
   clearCart: () => void;
   getTotal: () => number;
 }
@@ -49,11 +50,20 @@ export const useCartStore = create<CartState>()(
           set({ items: [...items, newItem] });
         }
       },
-      removeItem: (id) => set({ items: get().items.filter(item => item._id !== id) }),
-      updateQuantity: (id, quantity) =>
+      removeItem: (id, variant) => set({ 
+        items: get().items.filter(item => 
+          !(item._id === id && 
+            item.variant?.size === variant?.size && 
+            item.variant?.color === variant?.color)
+        ) 
+      }),
+      updateQuantity: (id, variant, quantity) =>
         set({
           items: get().items.map(item =>
-            item._id === id ? { ...item, quantity } : item
+            (item._id === id && 
+             item.variant?.size === variant?.size && 
+             item.variant?.color === variant?.color) 
+            ? { ...item, quantity } : item
           ),
         }),
       clearCart: () => set({ items: [] }),

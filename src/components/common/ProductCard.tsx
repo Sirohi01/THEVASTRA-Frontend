@@ -19,11 +19,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    const hasDiscount = product.variants?.[0]?.discountPrice > 0;
+    const price = hasDiscount ? product.variants[0].discountPrice : product.basePrice;
+    const originalPrice = hasDiscount ? product.variants[0].price : product.basePrice;
+
     addItem({
       _id: product._id,
       name: product.name,
       slug: product.slug,
-      price: product.basePrice,
+      price: price,
+      originalPrice: originalPrice,
       image: product.images[0]?.url,
       quantity: 1
     });
@@ -32,11 +37,16 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
+    const hasDiscount = product.variants?.[0]?.discountPrice > 0;
+    const price = hasDiscount ? product.variants[0].discountPrice : product.basePrice;
+    const originalPrice = hasDiscount ? product.variants[0].price : product.basePrice;
+
     toggleWishlist({
       _id: product._id,
       name: product.name,
       slug: product.slug,
-      price: product.basePrice,
+      price: price,
+      originalPrice: originalPrice,
       image: product.images[0]?.url
     });
   };
@@ -115,7 +125,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           {product.variants?.[0]?.discountPrice > 0 ? (
             <div className="flex flex-col items-end">
               <p className="text-sm font-bold text-primary">₹{product.variants[0].discountPrice.toLocaleString()}</p>
-              <p className="text-[10px] text-secondary line-through opacity-50">₹{product.basePrice?.toLocaleString()}</p>
+              <p className="text-[10px] text-secondary line-through opacity-50">₹{product.variants[0].price.toLocaleString()}</p>
             </div>
           ) : (
             <p className="text-sm font-bold text-primary">

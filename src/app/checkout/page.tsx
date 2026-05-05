@@ -30,7 +30,7 @@ export default function CheckoutPage() {
   const { user } = useAuthStore();
   const { openPaymentModal } = useRazorpay();
   const router = useRouter();
-  
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
@@ -82,7 +82,8 @@ export default function CheckoutPage() {
           name: item.name,
           quantity: item.quantity,
           image: item.image,
-          price: item.price
+          price: item.price,
+          variant: item.variant
         })),
         shippingAddress: data,
         paymentMethod: data.paymentMethod,
@@ -210,21 +211,21 @@ export default function CheckoutPage() {
           {/* Order Summary */}
           <div className="bg-cream p-8 border border-accent self-start">
             <h2 className="text-2xl font-serif text-primary mb-8 uppercase tracking-widest">Order Summary</h2>
-            
+
             {/* Coupon Input */}
             <div className="mb-8 pb-8 border-b border-accent/30">
               <label className="text-[10px] uppercase tracking-widest text-secondary block mb-2">Discount Code</label>
               <div className="flex gap-2">
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="ENTER CODE" 
-                  className="flex-1 bg-white border border-accent p-2 text-xs uppercase tracking-widest focus:outline-none" 
+                  placeholder="ENTER CODE"
+                  className="flex-1 bg-white border border-accent p-2 text-xs uppercase tracking-widest focus:outline-none"
                 />
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleApplyCoupon}
                   isLoading={isValidatingCoupon}
                 >

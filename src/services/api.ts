@@ -24,35 +24,12 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        const { data } = await axios.get(`${baseURL}/auth/refresh`, {
-          withCredentials: true,
-        });
-
-        const newToken = data.accessToken;
-        const user = useAuthStore.getState().user;
-
-        if (user) {
-          useAuthStore.getState().setAuth(user, newToken);
-        }
-
-        // IMPORTANT: Update the header and baseURL for the retry
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-        // If the original request used a relative URL, axios(originalRequest) might fail 
-        // if not called from the instance. So we use API(originalRequest).
-        return API(originalRequest);
-      } catch (refreshError) {
-        useAuthStore.getState().logout();
-        return Promise.reject(refreshError);
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
       }
     }
-
     return Promise.reject(error);
   }
 );

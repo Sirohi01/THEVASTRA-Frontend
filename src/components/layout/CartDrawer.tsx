@@ -58,26 +58,36 @@ export const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
                         <h3 className="text-sm uppercase tracking-wider text-primary font-medium">{item.name}</h3>
-                        <p className="text-xs text-secondary mt-1">₹{item.price.toLocaleString()}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-xs text-primary font-medium">₹{item.price.toLocaleString()}</p>
+                          {item.originalPrice && item.originalPrice > item.price && (
+                            <p className="text-[10px] text-secondary line-through opacity-50">₹{item.originalPrice.toLocaleString()}</p>
+                          )}
+                        </div>
+                        {item.variant && (
+                          <p className="text-[10px] text-secondary/60 uppercase tracking-widest mt-1">
+                            {item.variant.color} / {item.variant.size}
+                          </p>
+                        )}
                       </div>
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center border border-accent">
+                        <div className="flex items-center gap-2">
                           <button 
-                            onClick={() => updateQuantity(item._id, Math.max(1, item.quantity - 1))}
-                            className="p-1 hover:bg-accent/20"
+                            onClick={() => updateQuantity(item._id, item.variant, Math.max(1, item.quantity - 1))}
+                            className="w-6 h-6 border border-accent flex items-center justify-center text-xs"
                           >
-                            <Minus size={14} />
+                            -
                           </button>
-                          <span className="px-3 text-sm">{item.quantity}</span>
+                          <span className="text-xs w-4 text-center">{item.quantity}</span>
                           <button 
-                            onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                            className="p-1 hover:bg-accent/20"
+                            onClick={() => updateQuantity(item._id, item.variant, item.quantity + 1)}
+                            className="w-6 h-6 border border-accent flex items-center justify-center text-xs"
                           >
-                            <Plus size={14} />
+                            +
                           </button>
                         </div>
-                        <button onClick={() => removeItem(item._id)} className="text-red-800 hover:text-red-600">
-                          <Trash2 size={16} />
+                        <button onClick={() => removeItem(item._id, item.variant)} className="text-red-800 hover:text-red-600">
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
