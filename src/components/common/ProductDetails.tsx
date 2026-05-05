@@ -8,12 +8,14 @@ import { toast } from "react-hot-toast";
 import { motion } from "framer-motion";
 import { Heart, Share2, Truck, ShieldCheck, RotateCcw } from "lucide-react";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 export function ProductDetails({ product }: { product: any }) {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [currentVariant, setCurrentVariant] = useState<any>(null);
   const addItem = useCartStore((state) => state.addItem);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
   const { addProduct } = useRecentlyViewed();
 
   useEffect(() => {
@@ -64,6 +66,55 @@ export function ProductDetails({ product }: { product: any }) {
       variant: { size: selectedSize, color: selectedColor }
     });
     toast.success("Added to your bag");
+  };
+
+  const handleToggleWishlist = () => {
+    const price = currentVariant 
+      ? (currentVariant.discountPrice || currentVariant.price) 
+      : product.basePrice;
+    
+    const originalPrice = currentVariant ? currentVariant.price : product.basePrice;
+
+    const isAdding = !isInWishlist(product._id);
+
+    toggleWishlist({
+      _id: product._id,
+      name: product.name,
+      slug: product.slug,
+      price: price,
+      originalPrice: originalPrice,
+      image: product.images[0].url,
+      categoryName: product.category?.name
+    });
+
+    if (isAdding) {
+      toast.success("Added to wishlist");
+    } else {
+      toast.success("Removed from wishlist");
+    }
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `Check out ${product.name} at TheVastraHouse`,
+          url: window.location.href,
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          console.error("Error sharing:", err);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Link copied to clipboard");
+      } catch (err) {
+        toast.error("Failed to copy link");
+      }
+    }
   };
 
   const allColors = Array.from(new Set(product.variants.map((v: any) => v.color)));
@@ -179,10 +230,16 @@ export function ProductDetails({ product }: { product: any }) {
             ) : (
                 <div className="flex gap-4">
                     <Button className="flex-1" size="lg" onClick={handleAddToCart}>Add to Bag</Button>
-                    <button className="p-4 border border-accent hover:bg-accent/30 transition-colors">
-                      <Heart size={20} className="text-primary" />
+                    <button 
+                      onClick={handleToggleWishlist}
+                      className={`p-4 border transition-colors ${isInWishlist(product._id) ? 'bg-primary text-white border-primary' : 'border-accent hover:bg-accent/30'}`}
+                    >
+                      <Heart size={20} fill={isInWishlist(product._id) ? "currentColor" : "none"} />
                     </button>
-                    <button className="p-4 border border-accent hover:bg-accent/30 transition-colors">
+                    <button 
+                      onClick={handleShare}
+                      className="p-4 border border-accent hover:bg-accent/30 transition-colors"
+                    >
                       <Share2 size={20} className="text-primary" />
                     </button>
                 </div>

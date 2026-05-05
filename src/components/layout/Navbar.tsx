@@ -6,14 +6,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Search, User, Menu, X, Heart } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
+import { useWishlistStore } from "@/store/wishlistStore";
 import { CartDrawer } from "./CartDrawer";
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { isAuthenticated, user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { items } = useCartStore();
+  const { items: wishlistItems } = useWishlistStore();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -82,10 +84,14 @@ export const Navbar = () => {
             <Link href={isAuthenticated ? (user?.role === 'admin' ? "/admin" : "/dashboard") : "/login"} className="hover:text-secondary transition-colors">
               <User size={20} />
             </Link>
-            <button className="hover:text-secondary transition-colors relative" aria-label="Wishlist">
+            <Link href="/wishlist" className="hover:text-secondary transition-colors relative" aria-label="Wishlist">
               <Heart size={20} />
-              <span className={`absolute -top-2 -right-2 text-[10px] w-4 h-4 rounded-full flex items-center justify-center ${isScrolled ? "bg-secondary text-white" : "bg-white text-primary"}`}>0</span>
-            </button>
+              {wishlistItems.length > 0 && (
+                <span className={`absolute -top-2 -right-2 text-[10px] w-4 h-4 rounded-full flex items-center justify-center ${isScrolled ? "bg-secondary text-white" : "bg-white text-primary"}`}>
+                  {wishlistItems.length}
+                </span>
+              )}
+            </Link>
             <button 
               onClick={() => setIsCartOpen(true)}
               className="hover:text-secondary transition-colors relative"
@@ -152,13 +158,17 @@ export const Navbar = () => {
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-widest">Cart</span>
                   </button>
-                  <button 
+                  <Link 
+                    href="/wishlist"
                     className="flex flex-col items-center justify-center p-6 border border-accent bg-cream/20 col-span-2"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <Heart size={24} className="text-primary mb-2" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest">Wishlist (0)</span>
-                  </button>
+                    <div className="relative">
+                      <Heart size={24} className="text-primary mb-2" />
+                      {wishlistItems.length > 0 && <span className="absolute -top-1 -right-1 bg-secondary text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center">{wishlistItems.length}</span>}
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-widest">Wishlist ({wishlistItems.length})</span>
+                  </Link>
                 </div>
               </div>
             </motion.div>

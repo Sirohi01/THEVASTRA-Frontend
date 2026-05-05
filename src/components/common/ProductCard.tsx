@@ -41,14 +41,23 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     const price = hasDiscount ? product.variants[0].discountPrice : product.basePrice;
     const originalPrice = hasDiscount ? product.variants[0].price : product.basePrice;
 
+    const isAdding = !isInWishlist(product._id);
+    
     toggleWishlist({
       _id: product._id,
       name: product.name,
       slug: product.slug,
       price: price,
       originalPrice: originalPrice,
-      image: product.images[0]?.url
+      image: product.images[0]?.url,
+      categoryName: product.category?.name || product.categoryName
     });
+
+    if (isAdding) {
+      toast.success("Added to wishlist");
+    } else {
+      toast.success("Removed from wishlist");
+    }
   };
 
   return (
@@ -110,7 +119,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <div className="mt-4 flex justify-between items-start">
         <div className="max-w-[70%]">
           <p className="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold mb-1 opacity-80">
-            {product.category?.name}
+            {product.category?.name || product.categoryName}
           </p>
           <Link href={`/product/${product.slug}`}>
             <h3 className="text-sm font-serif text-primary hover:text-secondary transition-colors truncate">
@@ -122,7 +131,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </Link>
         </div>
         <div className="text-right">
-          {product.variants?.[0]?.discountPrice > 0 ? (
+          {product.price ? (
+            <div className="flex flex-col items-end">
+              <p className="text-sm font-bold text-primary">₹{product.price.toLocaleString()}</p>
+              {product.originalPrice && product.originalPrice > product.price && (
+                <p className="text-[10px] text-secondary line-through opacity-50">₹{product.originalPrice.toLocaleString()}</p>
+              )}
+            </div>
+          ) : product.variants?.[0]?.discountPrice > 0 ? (
             <div className="flex flex-col items-end">
               <p className="text-sm font-bold text-primary">₹{product.variants[0].discountPrice.toLocaleString()}</p>
               <p className="text-[10px] text-secondary line-through opacity-50">₹{product.variants[0].price.toLocaleString()}</p>

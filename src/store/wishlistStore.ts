@@ -8,6 +8,7 @@ interface WishlistItem {
   price: number;
   originalPrice?: number;
   image: string;
+  categoryName?: string;
 }
 
 interface WishlistState {
