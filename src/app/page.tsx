@@ -8,6 +8,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/common/ProductCard";
+import Image from "next/image";
 
 export default function Home() {
   const { data: categories, isLoading } = useQuery({
@@ -74,10 +75,12 @@ export default function Home() {
                   className="group relative overflow-hidden aspect-square cursor-pointer"
                 >
                   <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-700 z-10" />
-                  <img
+                  <Image
                     src={category.image?.url || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"}
                     alt={category.name}
-                    className="h-full w-full object-cover transition-transform duration-[1.5s] group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-[1.5s] group-hover:scale-110"
                   />
                   <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-8 text-center">
                     <h3 className="text-white text-3xl font-serif tracking-widest uppercase mb-4 transform translate-y-4 group-hover:translate-y-0 transition-all duration-700">
@@ -178,10 +181,12 @@ export default function Home() {
               viewport={{ once: true }}
               className="relative aspect-[3/2] overflow-hidden bg-accent/20"
             >
-              <img
+              <Image
                 src={storyData?.headerImage || "https://images.unsplash.com/photo-1583391733956-6c78276477e2?q=80&w=2070&auto=format&fit=crop"}
                 alt={storyData?.title || "Our Heritage"}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
               />
               <div className="absolute inset-0 border-[15px] border-white/20 m-4" />
             </motion.div>

@@ -49,6 +49,7 @@ export const Hero = () => {
               alt={banners[current].title}
               fill
               priority
+              sizes="100vw"
               className="object-cover object-center transition-transform duration-[10000ms] scale-110" 
             />
             <div className="absolute inset-0 bg-primary/40 mix-blend-multiply" />

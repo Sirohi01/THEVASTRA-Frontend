@@ -69,11 +69,12 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       className="group"
     >
       <div className="relative overflow-hidden aspect-[3/4] bg-accent">
-        <Link href={`/product/${product.slug}`}>
+        <Link href={`/product/${product.slug}`} className="relative block h-full w-full">
           <Image
             src={product.images[0]?.url || "/placeholder.jpg"}
             alt={product.name}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className={`object-cover transition-all duration-700 ${product.images[1] ? 'group-hover:opacity-0 scale-100 group-hover:scale-110' : 'group-hover:scale-110'}`}
           />
           {product.images[1] && (
@@ -81,6 +82,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               src={product.images[1].url}
               alt={product.name}
               fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-700 scale-110 group-hover:scale-100"
             />
           )}
