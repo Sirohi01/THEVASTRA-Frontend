@@ -10,10 +10,58 @@ import { Heart, Share2, Truck, ShieldCheck, RotateCcw } from "lucide-react";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useWishlistStore } from "@/store/wishlistStore";
 
+function ZoomImage({ src, alt, className }: { src: string, alt: string, className?: string }) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [showMagnifier, setShowMagnifier] = useState(false);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.pageX - left - window.scrollX) / width) * 100;
+    const y = ((e.pageY - top - window.scrollY) / height) * 100;
+    setPosition({ x, y });
+    setCursorPosition({ x: e.pageX - left - window.scrollX, y: e.pageY - top - window.scrollY });
+  };
+
+  return (
+    <div 
+      className={`relative overflow-hidden cursor-zoom-in ${className}`}
+      onMouseEnter={() => setShowMagnifier(true)}
+      onMouseLeave={() => setShowMagnifier(false)}
+      onMouseMove={handleMouseMove}
+    >
+      <Image 
+        src={src} 
+        alt={alt} 
+        fill 
+        sizes="(max-width: 768px) 100vw, 50vw"
+        className="object-cover transition-transform duration-300"
+      />
+      {showMagnifier && (
+        <div 
+          className="absolute pointer-events-none border-2 border-white/50 rounded-full shadow-2xl z-10"
+          style={{
+            width: '200px',
+            height: '200px',
+            left: `${cursorPosition.x - 100}px`,
+            top: `${cursorPosition.y - 100}px`,
+            backgroundImage: `url(${src})`,
+            backgroundPosition: `${position.x}% ${position.y}%`,
+            backgroundSize: '250%',
+            backgroundRepeat: 'no-repeat',
+            boxShadow: '0 0 20px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,255,255,0.2)'
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 export function ProductDetails({ product }: { product: any }) {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [currentVariant, setCurrentVariant] = useState<any>(null);
+  const [activeImage, setActiveImage] = useState(product?.images[0]?.url || "");
   const addItem = useCartStore((state) => state.addItem);
   const { toggleWishlist, isInWishlist } = useWishlistStore();
   const { addProduct } = useRecentlyViewed();
@@ -21,6 +69,9 @@ export function ProductDetails({ product }: { product: any }) {
   useEffect(() => {
     if (product) {
       addProduct(product);
+      if (product.images?.length > 0) {
+        setActiveImage(product.images[0].url);
+      }
     }
   }, [product?._id, addProduct]);
 
@@ -130,24 +181,37 @@ export function ProductDetails({ product }: { product: any }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
       {/* Gallery */}
-      <div className="lg:col-span-7 grid grid-cols-1 md:grid-cols-2 gap-4">
-        {product.images.map((img: any, i: number) => (
+      <div className="lg:col-span-7 flex flex-col md:flex-row gap-4">
+        {/* Thumbnails */}
+        {product.images.length > 1 && (
+          <div className="flex md:flex-col gap-3 order-2 md:order-1 overflow-x-auto md:overflow-y-auto no-scrollbar md:max-h-[600px] min-w-[80px]">
+            {product.images.map((img: any, i: number) => (
+              <button 
+                key={i}
+                onClick={() => setActiveImage(img.url)}
+                className={`relative w-20 aspect-[3/4] border-2 transition-all flex-shrink-0 ${activeImage === img.url ? 'border-primary' : 'border-transparent opacity-60 hover:opacity-100'}`}
+              >
+                <Image src={img.url} alt={`${product.name} ${i}`} fill className="object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Main Image with Zoom */}
+        <div className="flex-1 order-1 md:order-2">
           <motion.div
+            key={activeImage}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            key={i}
-            className={`relative aspect-[3/4] bg-accent ${i === 0 ? 'md:col-span-2' : ''}`}
+            className="relative aspect-[3/4] bg-accent w-full"
           >
-            <Image 
-              src={img.url} 
+            <ZoomImage 
+              src={activeImage} 
               alt={product.name} 
-              fill 
-              sizes="(max-width: 768px) 100vw, 50vw"
-              priority={i === 0}
-              className="object-cover" 
+              className="h-full w-full"
             />
           </motion.div>
-        ))}
+        </div>
       </div>
 
       {/* Details */}

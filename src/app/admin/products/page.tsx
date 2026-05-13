@@ -19,7 +19,7 @@ export default function AdminProductsPage() {
     description: "",
     category: "",
     basePrice: 0,
-    image: "",
+    images: [] as any[],
     isFeatured: false,
     isNewArrival: false,
     variants: [{ size: "", color: "", stock: 0, sku: "", price: 0, discountPrice: 0 }]
@@ -68,12 +68,19 @@ export default function AdminProductsPage() {
   });
 
   const handleFileChange = (e: any) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, image: reader.result as string });
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    files.forEach((file: any) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, images: [...prev.images, reader.result as string] }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ...formData, images: newImages });
   };
 
   const addVariant = () => {
@@ -102,7 +109,7 @@ export default function AdminProductsPage() {
         description: product.description,
         category: product.category?._id || "",
         basePrice: product.basePrice,
-        image: product.images[0]?.url || "",
+        images: product.images || [],
         isFeatured: product.isFeatured || false,
         isNewArrival: product.isNewArrival || false,
         variants: product.variants?.length > 0 
@@ -116,7 +123,7 @@ export default function AdminProductsPage() {
         description: "", 
         category: "", 
         basePrice: 0, 
-        image: "", 
+        images: [], 
         isFeatured: false,
         isNewArrival: false,
         variants: [{ size: "", color: "", stock: 0, sku: "", price: 0, discountPrice: 0 }] 
@@ -272,18 +279,25 @@ export default function AdminProductsPage() {
                   </div>
                 <div>
                   <label className="text-[10px] font-bold uppercase tracking-[0.2em] mb-2 block">Piece Imagery</label>
-                  <div className="border-2 border-dashed border-accent rounded-lg p-6 text-center cursor-pointer hover:bg-cream/30 transition-all relative">
-                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} />
-                    {formData.image ? (
-                      <div className="relative h-32 w-full">
-                        <img src={formData.image} className="h-full w-full object-contain rounded" />
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {formData.images.map((img: any, idx: number) => (
+                      <div key={idx} className="relative group aspect-square bg-cream/30 border border-accent rounded-lg overflow-hidden">
+                        <img src={typeof img === 'string' ? img : img.url} className="h-full w-full object-cover" />
+                        <button 
+                          onClick={() => removeImage(idx)}
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
                       </div>
-                    ) : (
+                    ))}
+                    <div className="border-2 border-dashed border-accent rounded-lg aspect-square flex items-center justify-center cursor-pointer hover:bg-cream/30 transition-all relative">
+                      <input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileChange} />
                       <div className="flex flex-col items-center">
-                        <Upload size={24} className="text-secondary mb-2" />
-                        <p className="text-[8px] font-bold uppercase tracking-widest text-secondary">Upload Shot</p>
+                        <Upload size={20} className="text-secondary mb-1" />
+                        <p className="text-[8px] font-bold uppercase tracking-widest text-secondary">Add More</p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
                 <div>
